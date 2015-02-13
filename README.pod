@@ -6,4 +6,4 @@ Transparent loader for js joose classes
 
 =head2 Example
 
-L<example|https://rawgit.com/hernan604/JooseLoader/master/index.html>
+L<example|http://rawgit.com/hernan604/JooseLoader/master/index.html>
