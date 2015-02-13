@@ -1,0 +1,149 @@
+<html>
+    <head>
+        <script src='./js/joose.js'></script>
+        <meta charset='UTF-8'>
+    </head>
+
+    <style>
+    
+    .slider-v1 {
+        cursor  : pointer;
+    }
+
+    .slider-v1.running:after {
+        content : "running";
+        color   :#f00;
+    }
+
+    .slider-v1.stopped:after {
+        content : "stopped";
+        color   :#f00;
+    }
+    
+    </style>
+
+    <body>
+        <script>
+
+        Class( "JooseLoader", {
+            has : {
+                prefix : {
+                    is : "rw",
+                    init: (function() {
+                        return "./js/";
+                    } )(),
+                },
+                extension : {
+                    is : "rw",
+                    init: (function () {
+                        return ".js";
+                    })()
+                },
+                loaded_urls : {
+                    //keeps track of which urls have been loaded.
+                    is : "rw",
+                    init : ( function () { return {} } )()
+                }
+            },
+            methods : {
+                load : function ( class_name, args ) {
+                    if ( ! class_name ) return;
+                    var lib_url = ( /^\.\//.test(class_name)        ||  // ^./
+                                    /^\/\//.test(class_name)        ||  //^//
+                                    /^\//.test(class_name)          ||  //^/
+                                    /^[a-z+]:\/\//.test(class_name)     //^[a-z+]:\/\/
+                                  )
+                                    ? class_name //classname is a url in this case
+                                    : this.to_url( class_name )
+                                    ;
+                    if ( this.is_loaded( lib_url ) ) {
+                        console.log('Lib carregada: ' + lib_url);
+                        return;
+                    } else {
+                        this.loaded_urls[ lib_url ] = 1;
+                    }
+
+                    LOAD_OPTION_1: {
+                        eval( new Joose.SimpleRequest().getText( lib_url ) );
+                    }
+
+//                  LOAD_OPTION_2: {
+//                      var source_code = new Joose.SimpleRequest().getText( lib_url );
+//                      var script = document.createElement('script');
+//                      script.type = "text/javascript";
+//                      script.text = source_code;
+//                      document.getElementsByTagName('head')[0].appendChild(script);
+//                  }
+
+                    return ( args && args.eval === false )
+                        ? undefined 
+                        : eval(class_name);
+                },
+                to_url : function ( class_name ) {
+                    //transform the class_name into the class path.
+                    //split on the dot, prepend /js and append .js
+                    //MyClass                       = /js/MyClass.js
+                    //MyClass.SubClass.OtherClass   = /js/MyClass/SubClass/OtherClass.js
+                    return this.prefix + class_name.split('.').join('/') + this.extension
+                },
+                is_loaded : function ( lib_url ) {
+                    return this.loaded_urls[ lib_url ];
+                }
+            }
+        } )
+
+        window.jloader = new JooseLoader();
+        console.log(jloader,"^^ jloader")
+        jloader.load('MyApp')
+        var mybase = new MyApp({
+            deps : [
+                jloader.load('ClassTest2'),
+                jloader.load('ClassTest1'),
+                jloader.load('Slider'),
+                jloader.load('Clock'),
+                jloader.load('Youtube'),
+            ]
+        });
+        mybase.init();
+
+//
+//      Exemplo de role aplicada por metaprogramação.
+//      Pode ser aplicada na instância ou na classe direto.
+//
+//      Role( "RoleTeste", {
+//          has : {
+//              attr_teste: { is : "rw" }
+//          },
+//          methods : {
+//              minharole : function () {
+//                  console.log('Minha Role');
+//              }
+//          }
+//      } )
+
+//      Class( "Principal", {
+//          has : {
+//              versao : { is : "rw" }
+//          }
+//      } )
+
+//      Principal.meta.addRole(RoleTeste);
+//      var principal = new Principal( { versao : 10 } );
+//      principal.meta.addRole(RoleTeste)
+//      principal.minharole()
+//      console.log( Principal );
+//      alert('aplicar a role conforme exemplo acima.. após carregar.')
+
+        </script>
+
+        <div class='area-login'></div>
+        <div class='slider-v1' data-images='["http://lorempixel.com/output/abstract-q-g-50-50-1.jpg","http://lorempixel.com/output/abstract-q-g-50-50-2.jpg","http://lorempixel.com/output/abstract-q-g-50-50-3.jpg","http://lorempixel.com/output/abstract-q-g-50-50-4.jpg","http://lorempixel.com/output/abstract-q-g-50-50-5.jpg","http://lorempixel.com/output/abstract-q-g-50-50-6.jpg"]' data-auto_start='true'></div>
+        <div class='class-test2 um'></div>
+        <div class='class-test2-other-selector dois'></div>
+        <div class='slider-v1' data-images='["http://lorempixel.com/output/technics-h-c-80-120-10.jpg","http://lorempixel.com/output/fashion-h-c-80-120-4.jpg","http://lorempixel.com/output/technics-h-c-80-120-7.jpg","http://lorempixel.com/output/abstract-h-c-80-120-2.jpg","http://lorempixel.com/output/nightlife-h-c-80-120-6.jpg"]' data-auto_start='false'></div>
+        <div class='clock-v1'></div>
+        <div class='video' data-embed='https://www.youtube.com/watch?v=EceaPCH2Zw0'></div>
+    </body>
+
+</html>
+
