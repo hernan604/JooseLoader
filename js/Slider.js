@@ -99,7 +99,7 @@ Class("Slider", {
                 if ( _this.status == 'stopped' ) {
                     //stop others of this type of clas and start this one
                     for ( var i=0, instance; instance = _this.app.instances[i]; i++ ) {
-                        if ( instance.meta._name == 'Slider' ) {
+                        if ( instance && instance.meta && instance.meta._name == 'Slider' ) {
                             instance.stop();
                         }
                     }
