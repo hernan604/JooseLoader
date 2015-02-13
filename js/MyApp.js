@@ -114,6 +114,8 @@ Class('MyApp', {
     before : {
         initialize : function () {
             jloader.load('./js/jquery.min.js', { eval : false })
+//          jloader.load('./js/handlebars-v3.0.0.js', { eval : false })
+//          console.log( Handlebars );
         }
     }
 })

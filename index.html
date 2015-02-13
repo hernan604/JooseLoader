@@ -19,6 +19,10 @@
         content : "stopped";
         color   :#f00;
     }
+
+    .name {
+        background: #F0f
+    }
     
     </style>
 
@@ -57,23 +61,22 @@
                                     : this.to_url( class_name )
                                     ;
                     if ( this.is_loaded( lib_url ) ) {
-                        console.log('Lib carregada: ' + lib_url);
                         return;
                     } else {
                         this.loaded_urls[ lib_url ] = 1;
                     }
 
-                    LOAD_OPTION_1: {
-                        eval( new Joose.SimpleRequest().getText( lib_url ) );
-                    }
-
-//                  LOAD_OPTION_2: {
-//                      var source_code = new Joose.SimpleRequest().getText( lib_url );
-//                      var script = document.createElement('script');
-//                      script.type = "text/javascript";
-//                      script.text = source_code;
-//                      document.getElementsByTagName('head')[0].appendChild(script);
+//                  LOAD_OPTION_1: {
+//                      eval( new Joose.SimpleRequest().getText( lib_url ) );
 //                  }
+
+                    LOAD_OPTION_2: {
+                        var source_code = new Joose.SimpleRequest().getText( lib_url );
+                        var script = document.createElement('script');
+                        script.type = "text/javascript";
+                        script.text = source_code;
+                        document.getElementsByTagName('head')[0].appendChild(script);
+                    }
 
                     return ( args && args.eval === false )
                         ? undefined 
@@ -94,6 +97,7 @@
 
         window.jloader = new JooseLoader();
         jloader.load('MyApp')
+//      jloader.load('./js/handlebars-v3.0.0.js', { eval : false })
         var mybase = new MyApp({
             deps : [
                 jloader.load('ClassTest2'),
@@ -102,6 +106,7 @@
                 jloader.load('Clock'),
                 jloader.load('Youtube'),
                 jloader.load('CustomClass'),
+                jloader.load('ExMustache'),
             ]
         });
         mybase.init();
@@ -145,6 +150,8 @@
         <div class='clock-v1'></div>
         <div class='video' data-embed='https://www.youtube.com/watch?v=EceaPCH2Zw0'></div>
         <div class='custom-class'></div>
+        <div class='mustache' data-name='xxxx' data-age='30'></div>
+        <div class='mustache' data-name='Maria' data-age='40'></div>
     </body>
 
 </html>
