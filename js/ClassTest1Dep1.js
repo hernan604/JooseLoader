@@ -9,7 +9,6 @@ Class("ClassTest1Dep1", {
     },
     methods: {
         class_test1_dep : function () {
-            console.log('--->' + this.version);
             return this.version;
         }
     }

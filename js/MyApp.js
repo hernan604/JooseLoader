@@ -79,7 +79,6 @@ Class('MyApp', {
         },
         init : function () {
             var _this = this;
-            console.log( this.deps );
             for (var i=0, myclass; myclass = this.deps[i]; i++) {
               //this.instances.push( new myclass( {
               //    elem        : $( item ),
@@ -92,10 +91,8 @@ Class('MyApp', {
                     ? myinstance.init()
                     : undefined
                     ;
-                console.log(myinstance);
               //myinstance.init();
             }
-            console.log( _this.instances, 'instances ^^' );
 //          $.each( $(selectors), function(i,item) {
 //              //console.log( $( item ) );
 //              _this.instances.push( new lib( {
@@ -108,7 +105,11 @@ Class('MyApp', {
     after : {
         initialize: function () {
             console.log('MyApp inicializada');
-        }
+        },
+//      init: function () { 
+//          var _this = this;
+//          console.log( _this.instances, 'instances ^^' );
+//      }
     },
     before : {
         initialize : function () {
