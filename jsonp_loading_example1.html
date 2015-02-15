@@ -1,0 +1,202 @@
+
+<html>
+    <head>
+        <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js'></script>
+        <script src='https://raw.githubusercontent.com/hernan604/JooseLoader/master/js/joose.js'></script>
+    </head>
+
+    <body>
+
+        Example of multiple jsonp loading.
+        <br>
+        -- Hernan Lopes
+
+        <script>
+            var without_joose = (function () {
+                // WIthout Joose
+                var MyClass = MyClass || ( function () {
+                    var _this = this;
+                    _this.data = undefined;
+                    _this.get_data = function () {
+                        $.ajax({
+                            url           : 'http://headers.jsontest.com',
+                            dataType      : 'jsonp',
+                            async         : true,
+                            cache         : true,
+                            jsonp         : 'callback',
+                            jsonpCallback : 'my_callback',
+                            contentType   : "application/json",
+                            success : function (data) {
+                                console.log( '<--- ajax success begin' );
+                                console.log( data );
+                                _this.data = data;
+                                _this.after_set_data();
+                                console.log( 'ajax success finish --->' );
+                            },
+                            type          : 'GET',
+                        }); 
+                    }
+
+                    _this.after_set_data = function () {
+                        console.log( '<--- after_set_data begin' );
+                        console.log( _this.data );
+                        console.log( 'after_set_data finish --->' );
+                    }
+                    _this.init = function () {
+                        _this.get_data();
+                    }
+
+                    _this.init();
+                } );
+                var my_class = new MyClass();
+            });
+            /* ------------------------------------- */
+            var with_joose = function () {
+                Class('MyClassJoose',{
+                    has : {
+                        data : { is : 'rw' },
+                    },
+                    methods : {
+                        get_data : function () {
+                            var _this = this;
+                            $.ajax({
+                                url           : 'http://headers.jsontest.com',
+                                dataType      : 'jsonp',
+                                async         : true,
+                                cache         : true,
+                                jsonp         : 'callback',
+                                jsonpCallback : 'my_callback2',
+                                contentType   : "application/json",
+                                success : function (data) {
+                                    console.log( '<--- ajax success begin' );
+                                    console.log( data );
+                                    _this.setData( data );
+                                    console.log( 'ajax success finish --->' );
+                                },
+                                type          : 'GET',
+                            }); 
+                        },
+                        init : function () {
+                            this.get_data();
+                        }
+                    },
+                    after : {
+                        setData : function () {
+                            console.log( '<--- setData(after) begin' );
+                            console.log( this.data );
+                            console.log( 'setData(after) finish --->' );
+                        },
+                        initialize : function () {
+                            this.init();
+                        }
+                    }
+                })
+                var my_class = new MyClassJoose();
+
+            }
+            /* ------------------------------------- */
+            with_ajax_func = function () {
+                Class('JsonpDownloader', {
+                    has : {
+                        my_callback       : { is : 'rw' },
+                        data              : { is : 'rw', init: (function() { return {} })() },
+                        urls_to_download  : { is : 'rw' },
+                        total_downloaded  : { is : 'rw' }
+                    },
+                    methods : {
+                        do_jsonp : function ( ) {
+                            var _this = this;
+                            for ( var i=0, url; url = _this.urls_to_download[ i ]; i++ ) {
+                                var options = (function( url ) {
+                                    return {
+                                        url           : url,
+                                        dataType      : 'jsonp',//text
+                                        async         : true,
+                                        cache         : true,
+                                        jsonp         : 'callback',
+                                        jsonpCallback : url.replace(/[^a-zA-Z0-9_]/g,'_'),
+                                        contentType   : "application/json",
+                                        success : function (data) {
+                                            console.log( '<--- ajax success begin' );
+                                            console.log( data, url );
+                                            _this.data[ url ] = data;
+                                            _this.setTotal_downloaded( _this.total_downloaded + 1 );
+                                            console.log( 'ajax success finish --->' );
+                                        },
+                                        type          : 'GET',
+                                    };
+                                })( url );
+                                $.ajax( options ); 
+                            }
+                        },
+                        when_done: function () {
+                            var _this = this;
+                            this.my_callback( _this.data );
+                        },
+                    },
+                    after : {
+                        setTotal_downloaded : function () {
+                            if ( this.total_downloaded == this.urls_to_download.length ) {
+                                //finished downloading
+                                console.log('done downloading. check data downlaoded: ');
+                                console.log(this.data);
+                                console.log('calling the callback');
+                                this.when_done();
+                            }
+                        },
+                        initialize : function () {
+                            this.do_jsonp();
+                        } 
+                    },
+                });
+
+
+                Class('SomeClass', {
+                    has : {
+                        urls_to_download : { is : 'rw', init : ( function () { return [] } )() },
+                        data : { is : 'rw' },
+                        version: { is : 'rw', init : ( function () { return "SomeClass Version 0.1" } )() }
+                    },
+                    methods : {
+                        download_all : function () {
+                            var _this = this;
+                            console.log( _this.urls_to_download );
+                            var jsonp_downloader = new JsonpDownloader( {
+                                urls_to_download : _this.urls_to_download,
+                                my_callback      : (function () { return function ( args ) { 
+                                    _this.done( args )
+                                } })()
+                            } );
+                        },
+                        done : function ( data ) {
+                            console.log('done, check data:');
+                            console.log( data );
+                            console.log( this.version );
+                            console.log( 'Wuhul!!' );
+                        }
+                    },
+                    after : {
+                        initialize : function () {
+                            this.download_all();
+                        }
+                    }
+                });
+
+
+                var stuff = new SomeClass({
+                    urls_to_download : [
+                        'http://headers.jsontest.com',
+                        'http://ip.jsontest.com'
+                    ],
+                });
+            }
+
+
+            without_joose();
+            with_joose();
+            with_ajax_func();
+
+        </script>
+
+    </body>
+</html>
